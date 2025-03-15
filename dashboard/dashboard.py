@@ -7,14 +7,14 @@ st.title("Analisis Data Penyewaan Sepeda")
 # Load kedua dataset
 def load_data(option):
     if option == "Data Harian (day.csv)":
-        df = pd.read_csv("bike_data/day.csv")
+        df = pd.read_csv("Dataset_BikeSharingData/day.csv")
     else:
-        df = pd.read_csv("bike_data/hour.csv")
+        df = pd.read_csv("Dataset_BikeSharingData/hour.csv")
     return df
 
 # Pilihan dataset
 
-df = load_data("bike_data/hour.csv")
+df = load_data("Dataset_BikeSharingData/hour.csv")
 
 # Konversi tanggal menjadi datetime
 if 'dteday' in df.columns:
@@ -70,7 +70,7 @@ st.write(df.describe())
 
 # Korelasi antar variabel (hanya kolom numerik)
 st.write("### Korelasi Antar Variabel Numerik")
-hour_df = pd.read_csv("bike_data/hour.csv")
+hour_df = pd.read_csv("Dataset_BikeSharingData/hour.csv")
 numerical_columns = ["holiday", "weekday", "workingday", "weathersit", "temp", "atemp", "season", "windspeed", "cnt"]
 correlation = hour_df[numerical_columns].corr()
 fig, ax = plt.subplots(figsize=(10, 6))
@@ -141,7 +141,7 @@ st.pyplot(fig)
 
 # Visualisasi waktu paling sibuk
 st.header("Waktu paling sibuk dan paling sepi dalam penyewaan sepeda berdasarkan jam, hari, dan musim")
-hour_df = pd.read_csv("bike_data/hour.csv")
+hour_df = pd.read_csv("Dataset_BikeSharingData/hour.csv")
 st.subheader("Distribusi Penyewaan Sepeda Berdasarkan Jam")
 fig, ax = plt.subplots(figsize=(12, 5))
 sns.boxplot(x=hour_df['hr'], y=hour_df['cnt'], ax=ax, palette="coolwarm")
@@ -152,7 +152,7 @@ st.pyplot(fig)
 
 # Distribusi Penyewaan Sepeda Berdasarkan Hari
 st.subheader("Distribusi Penyewaan Sepeda Berdasarkan Hari")
-day_df = pd.read_csv("bike_data/day.csv")
+day_df = pd.read_csv("Dataset_BikeSharingData/day.csv")
 fig, ax = plt.subplots(figsize=(12, 5))
 sns.boxplot(x=day_df['weekday'], y=day_df['cnt'], ax=ax, palette="coolwarm")
 ax.set_title("Distribusi Penyewaan Sepeda Berdasarkan Hari")
