@@ -169,23 +169,3 @@ ax.set_xlabel("Musim (1 = Semi, 2 = Panas, 3 = Gugur, 4 = Dingin)")
 ax.set_ylabel("Jumlah Penyewaan")
 st.pyplot(fig)
 
-# Analisis Lanjutan
-st.header("Analisis Lanjutan")
-def categorize_time(hour):
-    if 6 <= hour <= 11:
-        return "Pagi"
-    elif 12 <= hour <= 15:
-        return "Siang"
-    elif 16 <= hour <= 19:
-        return "Sore"
-    else:
-        return "Malam"
-
-hour_df['time_category'] = hour_df['hr'].apply(categorize_time)
-st.subheader("Distribusi Penyewaan Sepeda Berdasarkan Waktu Penggunaan")
-fig, ax = plt.subplots(figsize=(10, 5))
-sns.boxplot(x=hour_df['time_category'], y=hour_df['cnt'], palette="coolwarm", ax=ax)
-ax.set_title("Distribusi Penyewaan Sepeda Berdasarkan Waktu Penggunaan")
-ax.set_xlabel("Waktu Penggunaan")
-ax.set_ylabel("Jumlah Penyewaan")
-st.pyplot(fig)
