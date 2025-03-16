@@ -29,18 +29,6 @@ if 'dteday' in df.columns:
                                      value=(min_date, max_date))
     df = df[(df['dteday'].dt.date >= start_date) & (df['dteday'].dt.date <= end_date)]
 
-min_date = df["dteday"].min()
-max_date = df["dteday"].max()
- 
-with st.sidebar:
-
-    # Mengambil start_date & end_date dari date_input
-    start_date, end_date = st.date_input(
-        label='Rentang Waktu',min_value=min_date,
-        max_value=max_date,
-        value=[min_date, max_date]
-    )
-
 # Pilih musim
 season_mapping = {1: "Semi", 2: "Panas", 3: "Gugur", 4: "Dingin"}
 df['season_label'] = df['season'].map(season_mapping)
