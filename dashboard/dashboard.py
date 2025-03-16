@@ -95,6 +95,14 @@ ax.set_title("Perbandingan Jumlah Penyewa dan Kecepatan Angin Berdasarkan Musim"
 ax.legend(loc="upper left")
 st.pyplot(fig)
 
+st.subheader("Analisis Pola Penyewaan Sepeda terhadap Suhu")
+fig, ax = plt.subplots(figsize=(8,5))
+sns.lineplot(x=hour_df['temp'], y=hour_df['cnt'], ax=ax)
+ax.set_title("Pola Penyewaan Sepeda terhadap Suhu")
+ax.set_xlabel("Temperature (temp)")
+ax.set_ylabel("Jumlah Penyewaan (cnt)")
+st.pyplot(fig)
+
 # Visualisasi jumlah penyewaan berdasarkan suhu
 st.header("Pengaruh Suhu terhadap Penyewaan")
 plt.figure(figsize=(12,6))
@@ -114,13 +122,7 @@ ax.set_xlabel("Musim")
 ax.set_ylabel("Jumlah Penyewaan")
 st.pyplot(fig)
 
-st.subheader("Analisis Pola Penyewaan Sepeda terhadap Suhu")
-fig, ax = plt.subplots(figsize=(8,5))
-sns.lineplot(x=hour_df['temp'], y=hour_df['cnt'], ax=ax)
-ax.set_title("Pola Penyewaan Sepeda terhadap Suhu")
-ax.set_xlabel("Temperature (temp)")
-ax.set_ylabel("Jumlah Penyewaan (cnt)")
-st.pyplot(fig)
+
 
 weather_labels = {1: "Cerah", 2: "Berawan", 3: "Hujan", 4: "Salju"}
 hour_df['weathersit_label'] = hour_df['weathersit'].map(weather_labels)
