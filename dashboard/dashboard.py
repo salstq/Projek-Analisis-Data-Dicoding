@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 st.title("Analisis Data Penyewaan Sepeda")
 # Load kedua dataset
 def load_data(option):
@@ -13,21 +14,61 @@ def load_data(option):
     return df
 
 # Pilihan dataset
-
 df = load_data("Dataset_BikeSharingData/hour.csv")
 
 # Konversi tanggal menjadi datetime
-if 'dteday' in df.columns:
-    df['dteday'] = pd.to_datetime(df['dteday'])
+with st.sidebar.header("Filter Data"):
 
-# Pilih rentang tanggal
-if 'dteday' in df.columns:
-    min_date, max_date = df['dteday'].min().date(), df['dteday'].max().date()
-    start_date, end_date = st.slider("Pilih Rentang Tanggal:", 
-                                     min_value=min_date, 
-                                     max_value=max_date, 
-                                     value=(min_date, max_date))
-    df = df[(df['dteday'].dt.date >= start_date) & (df['dteday'].dt.date <= end_date)]
+  st.image("https://github.com/dicodingacademy/assets/raw/main/logo.png")
+  
+  if 'dteday' in df.columns:
+      df['dteday'] = pd.to_datetime(df['dteday'])
+
+  # Pilih rentang tanggal
+  if 'dteday' in df.columns:
+      min_date, max_date = df['dteday'].min().date(), df['dteday'].max().date()
+      date_range = st.date_input("Pilih Rentang Tanggal:", (min_date, max_date), min_value=min_date, max_value=max_date)
+
+      if isinstance(date_range, tuple) and len(date_range) == 2:
+          start_date, end_date = date_range
+          df = df[(df['dteday'].dt.date >= start_date) & (df['dteday'].dt.date <= end_date)]
+
+# Daily Orders Summary
+df = pd.read_csv("Dataset_BikeSharingData/hour.csv")
+st.subheader('Penyewaan Harian')
+col1, col2 = st.columns(2)
+
+daily_orders_df = df.groupby('dteday').agg(order_count=('cnt', 'sum'), revenue=('cnt', 'sum')).reset_index()
+
+with col1:
+    total_orders = daily_orders_df.order_count.sum()
+    st.metric("Total Penyewaan Sepeda", value=total_orders)
+
+with col2:
+    total_transactions = df.shape[0]
+    st.metric("Total Transaksi", value=total_transactions)
+
+# Konversi tanggal menjadi datetime
+df['dteday'] = pd.to_datetime(df['dteday'])
+df['year'] = df['dteday'].dt.year
+df['month'] = df['dteday'].dt.month
+
+# Filter hanya untuk tahun 2011 dan 2012
+df_filtered = df[df['year'].isin([2011, 2012])]
+
+# Agregasi jumlah penyewaan per bulan
+df_monthly = df_filtered.groupby(['year', 'month'])['cnt'].sum().reset_index()
+df_monthly['month'] = df_monthly['month'].map({1: 'Jan', 2: 'Feb', 3: 'March', 4: 'April', 5: 'May', 6: 'June', 7: 'July', 8: 'Aug', 9: 'Sept', 10: 'Oct', 11: 'Nov', 12: 'Dec'})
+
+# Plot
+st.subheader("Trend Penyewaan Sepeda Berdasarkan Bulan (2011 & 2012)")
+fig, ax = plt.subplots(figsize=(10, 5))
+sns.lineplot(data=df_monthly, x='month', y='cnt', hue='year', marker='o', ax=ax, palette = "coolwarm")
+ax.set_xlabel("Month")
+ax.set_ylabel("Total Rentals")
+ax.set_title("Monthly Bicycle Rental Trends for 2011 & 2012")
+ax.legend(title="Year")
+st.pyplot(fig)
 
 # Pilih musim
 season_mapping = {1: "Semi", 2: "Panas", 3: "Gugur", 4: "Dingin"}
@@ -95,16 +136,8 @@ ax.set_title("Perbandingan Jumlah Penyewa dan Kecepatan Angin Berdasarkan Musim"
 ax.legend(loc="upper left")
 st.pyplot(fig)
 
-st.subheader("Analisis Pola Penyewaan Sepeda terhadap Suhu")
-fig, ax = plt.subplots(figsize=(8,5))
-sns.lineplot(x=hour_df['temp'], y=hour_df['cnt'], ax=ax)
-ax.set_title("Pola Penyewaan Sepeda terhadap Suhu")
-ax.set_xlabel("Temperature (temp)")
-ax.set_ylabel("Jumlah Penyewaan (cnt)")
-st.pyplot(fig)
-
 # Visualisasi jumlah penyewaan berdasarkan suhu
-st.header("Pengaruh Suhu terhadap Penyewaan")
+st.header("Bagaimana pengaruh faktor cuaca & suhu terhadap jumlah penyewaan sepeda?")
 plt.figure(figsize=(12,6))
 sns.scatterplot(x=df['temp'], y=df['cnt'], hue=df['weathersit'], palette="coolwarm")
 plt.title("Hubungan Suhu dan Faktor Cuaca terhadap Jumlah Penyewaan Sepeda")
@@ -112,18 +145,7 @@ plt.xlabel("Suhu")
 plt.ylabel("Jumlah Penyewaan")
 plt.legend(title="Faktor Cuaca")
 plt.show()
-
-
-# Visualisasi jumlah penyewaan berdasarkan musim
-st.subheader("Penyewaan Sepeda Berdasarkan Musim")
-fig, ax = plt.subplots()
-sns.boxplot(data=df, x='season', y='cnt', ax=ax)
-ax.set_xlabel("Musim")
-ax.set_ylabel("Jumlah Penyewaan")
-st.pyplot(fig)
-
-
-
+ 
 weather_labels = {1: "Cerah", 2: "Berawan", 3: "Hujan", 4: "Salju"}
 hour_df['weathersit_label'] = hour_df['weathersit'].map(weather_labels)
 st.subheader("Analisis Pola Penyewaan Sepeda terhadap Suhu dan Cuaca")
@@ -133,16 +155,35 @@ sns.scatterplot(
     y=hour_df['cnt'],
     hue=hour_df['weathersit_label'],
     palette="coolwarm",
-    ax=ax
-)
+    ax=ax)
 ax.set_title("Hubungan Suhu dan Faktor Cuaca terhadap Jumlah Penyewaan Sepeda")
 ax.set_xlabel("Suhu")
 ax.set_ylabel("Jumlah Penyewaan")
 ax.legend(title="Faktor Cuaca")
 st.pyplot(fig)
 
+# Visualisasi jumlah penyewaan berdasarkan musim
+st.subheader("Penyewaan Sepeda Berdasarkan Musim")
+fig, ax = plt.subplots()
+sns.boxplot(data=df, x='season', y='cnt', ax=ax)
+ax.set_xlabel("Musim")
+ax.set_ylabel("Jumlah Penyewaan")
+st.pyplot(fig)
+
+st.subheader("Analisis Pola Penyewaan Sepeda terhadap Suhu")
+fig, ax = plt.subplots(figsize=(8,5))
+sns.lineplot(x=hour_df['temp'], y=hour_df['cnt'], ax=ax)
+ax.set_title("Pola Penyewaan Sepeda terhadap Suhu")
+ax.set_xlabel("Temperature (temp)")
+ax.set_ylabel("Jumlah Penyewaan (cnt)")
+st.pyplot(fig)
+st.markdown("""- Suhu dan cuaca berpengaruh terhadap jumlah penyewaan sepeda.
+- Cuaca yang baik dan suhu yang hangat cenderung meningkatkan jumlah penyewaan.
+- Ini menunjukan bahwa bisnis penyewaan sepeda bisa memaksimalkan keuntungan dengan menargetkan promosi atau diskon pada hari-hari dengan cuaca buruk untuk menarik lebih banyak pelanggan.
+- Penyedia layanan memastikan ketersediaan sepeda yang lebih tinggi pada hari-hari yang cerah dan hangat.""")
+
 # Visualisasi waktu paling sibuk
-st.header("Waktu paling sibuk dan paling sepi dalam penyewaan sepeda berdasarkan jam, hari, dan musim")
+st.header("Kapan waktu paling sibuk dan paling sepi dalam penyewaan sepeda berdasarkan jam, hari, dan musim?")
 hour_df = pd.read_csv("Dataset_BikeSharingData/hour.csv")
 st.subheader("Distribusi Penyewaan Sepeda Berdasarkan Jam")
 fig, ax = plt.subplots(figsize=(12, 5))
@@ -170,4 +211,7 @@ ax.set_title("Distribusi Penyewaan Sepeda Berdasarkan Musim")
 ax.set_xlabel("Musim (1 = Semi, 2 = Panas, 3 = Gugur, 4 = Dingin)")
 ax.set_ylabel("Jumlah Penyewaan")
 st.pyplot(fig)
-
+st.markdown("""- Waktu tersibuk untuk penyewaan sepeda terjadi di pagi hari sampai sore hari saat jam kerja dan saat musim gugur dan panas.
+- Ini menunjukan bahwa banyak pengguna yang menggunakan sepeda sebagai transportasi untuk bekerja atau beraktivitas di luar rumah saat cuaca mendukung.
+- Waktu paling sepi untuk penyewaan sepeda terjadi pada dini hari dan saat musim semi.
+""")
