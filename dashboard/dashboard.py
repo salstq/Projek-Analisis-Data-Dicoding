@@ -19,7 +19,7 @@ df = load_data("Dataset_BikeSharingData/hour.csv")
 # Konversi tanggal menjadi datetime
 with st.sidebar.header("Filter Data"):
 
-  st.image("https://github.com/dicodingacademy/assets/raw/main/logo.png")
+  st.image("dashboard/download.jpg")
   
   if 'dteday' in df.columns:
       df['dteday'] = pd.to_datetime(df['dteday'])
